@@ -7,6 +7,7 @@ import { CheckCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import VoteButtons from './VoteButtons';
 import CommentSection from './CommentSection';
+import MarkdownEditor from './MarkdownEditor';
 
 interface Answer {
   id: string;
@@ -56,7 +57,12 @@ const AnswerCard = ({ answer, questionAuthorId, isAccepted, onUpdate }: AnswerCa
                   )}
                   
                   <div className="prose prose-sm max-w-none mb-4">
-                    <p className="whitespace-pre-wrap">{answer.content}</p>
+                    <MarkdownEditor
+                      value={answer.content}
+                      onChange={() => {}} // Read-only
+                      preview="preview"
+                      height={150}
+                    />
                   </div>
                 </div>
               </div>

@@ -5,10 +5,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { X, Plus } from 'lucide-react';
+import MarkdownEditor from '@/components/MarkdownEditor';
 
 const AskQuestion = () => {
   const { user } = useAuth();
@@ -178,18 +178,16 @@ const AskQuestion = () => {
 
               <div>
                 <label htmlFor="description" className="block text-sm font-medium mb-2">
-                  Description
+                  Description (Markdown supported)
                 </label>
-                <Textarea
-                  id="description"
+                <MarkdownEditor
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Provide all the details someone would need to understand and answer your question..."
-                  rows={8}
-                  maxLength={5000}
+                  onChange={setDescription}
+                  placeholder="Provide all the details someone would need to understand and answer your question. You can use **markdown** formatting!"
+                  height={300}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {description.length}/5000 characters
+                  {description.length}/5000 characters • Markdown formatting supported
                 </p>
               </div>
 

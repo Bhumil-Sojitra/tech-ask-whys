@@ -97,6 +97,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId })
     setSubmitting(true);
 
     try {
+      // First get the user's profile to use user_id correctly  
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile) {
+        throw new Error('User profile not found');
+      }
+
       const commentData = {
         content: newComment.trim(),
         author_id: user.id,

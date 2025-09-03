@@ -13,6 +13,7 @@ import { formatDistanceToNow } from 'date-fns';
 import VoteButtons from '@/components/VoteButtons';
 import AnswerCard from '@/components/AnswerCard';
 import CommentSection from '@/components/CommentSection';
+import MarkdownEditor from '@/components/MarkdownEditor';
 
 interface QuestionData {
   id: string;
@@ -288,7 +289,12 @@ const QuestionDetail = () => {
                   </div>
                   
                   <div className="prose prose-sm max-w-none mb-4">
-                    <p className="whitespace-pre-wrap">{question.description}</p>
+                    <MarkdownEditor
+                      value={question.description}
+                      onChange={() => {}} // Read-only
+                      preview="preview"
+                      height={200}
+                    />
                   </div>
 
                   {/* Tags */}
@@ -357,16 +363,20 @@ const QuestionDetail = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmitAnswer} className="space-y-4">
-                <Textarea
-                  value={newAnswer}
-                  onChange={(e) => setNewAnswer(e.target.value)}
-                  placeholder="Write your answer here..."
-                  rows={6}
-                  maxLength={5000}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Your Answer (Markdown supported)
+                  </label>
+                  <MarkdownEditor
+                    value={newAnswer}
+                    onChange={setNewAnswer}
+                    placeholder="Write your answer here... You can use **markdown** formatting!"
+                    height={250}
+                  />
+                </div>
                 <div className="flex justify-between items-center">
                   <p className="text-xs text-muted-foreground">
-                    {newAnswer.length}/5000 characters
+                    {newAnswer.length}/5000 characters • Markdown formatting supported
                   </p>
                   <Button type="submit" disabled={submittingAnswer || !newAnswer.trim()}>
                     {submittingAnswer ? 'Posting...' : 'Post Your Answer'}
