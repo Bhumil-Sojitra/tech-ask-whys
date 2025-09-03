@@ -298,6 +298,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          created_at: string
+          email_notifications: boolean
+          id: string
+          profile_visibility: string
+          push_notifications: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          profile_visibility?: string
+          push_notifications?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          profile_visibility?: string
+          push_notifications?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           answer_id: string | null
