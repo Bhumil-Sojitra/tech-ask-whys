@@ -55,6 +55,7 @@ const CommentSection = ({ targetType, targetId }: CommentSectionProps) => {
           )
         `)
         .eq(targetType === 'question' ? 'question_id' : 'answer_id', targetId)
+        .is('parent_comment_id', null)
         .order('created_at', { ascending: true });
 
       if (error) throw error;

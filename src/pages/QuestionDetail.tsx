@@ -156,10 +156,18 @@ const QuestionDetail = () => {
 
   const incrementViewCount = async () => {
     try {
-      await supabase
+      const { data: currentQuestion } = await supabase
         .from('questions')
-        .update({ views: supabase.sql`views + 1` })
-        .eq('id', id);
+        .select('views')
+        .eq('id', id)
+        .single();
+
+      if (currentQuestion) {
+        await supabase
+          .from('questions')
+          .update({ views: currentQuestion.views + 1 })
+          .eq('id', id);
+      }
     } catch (error) {
       console.error('Failed to increment view count:', error);
     }
