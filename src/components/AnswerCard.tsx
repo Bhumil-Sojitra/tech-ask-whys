@@ -3,17 +3,22 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import VoteButtons from './VoteButtons';
 import CommentSection from './CommentSection';
 import MarkdownEditor from './MarkdownEditor';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Answer {
   id: string;
   content: string;
   created_at: string;
   is_accepted: boolean;
+  author_id: string;
   author: {
     username: string;
     avatar_url?: string;
@@ -30,6 +35,39 @@ interface AnswerCardProps {
 }
 
 const AnswerCard = ({ answer, questionAuthorId, isAccepted, onUpdate }: AnswerCardProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleDeleteAnswer = async () => {
+    if (!user) return;
+    
+    if (!confirm('Are you sure you want to delete this answer?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('answers')
+        .delete()
+        .eq('id', answer.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Answer deleted successfully.",
+      });
+
+      onUpdate();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete answer.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card className={`${isAccepted ? 'border-success bg-success/5' : ''}`}>
@@ -74,6 +112,17 @@ const AnswerCard = ({ answer, questionAuthorId, isAccepted, onUpdate }: AnswerCa
                 </div>
                 
                 <div className="flex items-center space-x-3">
+                  {user?.id === answer.author_id && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleDeleteAnswer}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  )}
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={answer.author?.avatar_url} />
                     <AvatarFallback className="bg-primary text-primary-foreground text-xs">

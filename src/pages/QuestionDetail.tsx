@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowUp, ArrowDown, MessageCircle, CheckCircle, Calendar, Eye } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, CheckCircle, Calendar, Eye, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import VoteButtons from '@/components/VoteButtons';
 import AnswerCard from '@/components/AnswerCard';
@@ -22,6 +22,7 @@ interface QuestionData {
   views: number;
   created_at: string;
   accepted_answer_id?: string;
+  author_id: string;
   author: {
     username: string;
     avatar_url?: string;
@@ -36,6 +37,7 @@ interface Answer {
   content: string;
   created_at: string;
   is_accepted: boolean;
+  author_id: string;
   author: {
     username: string;
     avatar_url?: string;
@@ -48,6 +50,7 @@ const QuestionDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [question, setQuestion] = useState<QuestionData | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -74,6 +77,7 @@ const QuestionDetail = () => {
           views,
           created_at,
           accepted_answer_id,
+          author_id,
           profiles!questions_author_id_fkey (
             username,
             avatar_url,
@@ -113,6 +117,7 @@ const QuestionDetail = () => {
           content,
           created_at,
           is_accepted,
+          author_id,
           profiles!answers_author_id_fkey (
             username,
             avatar_url,
@@ -229,6 +234,36 @@ const QuestionDetail = () => {
     }
   };
 
+  const handleDeleteQuestion = async () => {
+    if (!user) return;
+    
+    if (!confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('questions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Question deleted successfully.",
+      });
+
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete question.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -308,24 +343,38 @@ const QuestionDetail = () => {
                 </div>
 
                 {/* Author Info */}
-                <div className="flex items-center space-x-3 pt-4 border-t">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={question.author?.avatar_url} />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                      {question.author?.username?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <Link 
-                      to={`/profile/${question.author?.username}`}
-                      className="font-medium hover:text-primary"
-                    >
-                      {question.author?.username}
-                    </Link>
-                    <div className="text-xs text-reputation">
-                      {question.author?.reputation} reputation
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={question.author?.avatar_url} />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                        {question.author?.username?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <Link 
+                        to={`/profile/${question.author?.username}`}
+                        className="font-medium hover:text-primary"
+                      >
+                        {question.author?.username}
+                      </Link>
+                      <div className="text-xs text-reputation">
+                        {question.author?.reputation} reputation
+                      </div>
                     </div>
                   </div>
+                  
+                  {user?.id === question.author_id && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleDeleteQuestion}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Question
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
 
@@ -13,6 +13,7 @@ interface Comment {
   id: string;
   content: string;
   created_at: string;
+  author_id: string;
   author: {
     username: string;
     avatar_url?: string;
@@ -48,6 +49,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId })
           id,
           content,
           created_at,
+          author_id,
           profiles!comments_author_id_fkey (
             username,
             avatar_url,
@@ -141,6 +143,36 @@ const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId })
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    if (!user) return;
+    
+    if (!confirm('Are you sure you want to delete this comment?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .delete()
+        .eq('id', commentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Comment deleted successfully.",
+      });
+
+      fetchComments();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete comment.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-3">
       {/* Existing Comments */}
@@ -148,7 +180,19 @@ const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId })
         <div className="space-y-2">
           {comments.map((comment) => (
             <div key={comment.id} className="border-l-2 border-muted pl-4 py-2">
-              <p className="text-sm text-muted-foreground mb-1">{comment.content}</p>
+              <div className="flex justify-between items-start mb-1">
+                <p className="text-sm text-muted-foreground flex-1">{comment.content}</p>
+                {user?.id === comment.author_id && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteComment(comment.id)}
+                    className="text-destructive hover:text-destructive ml-2 p-1 h-auto"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                 <Link 
                   to={`/profile/${comment.author?.username}`}
