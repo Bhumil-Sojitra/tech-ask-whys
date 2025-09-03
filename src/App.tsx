@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import AskQuestion from "./pages/AskQuestion";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import QuestionDetail from "./pages/QuestionDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

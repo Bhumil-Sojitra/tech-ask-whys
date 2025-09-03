@@ -25,7 +25,7 @@ interface CommentSectionProps {
   targetId: string;
 }
 
-const CommentSection = ({ targetType, targetId }: CommentSectionProps) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
