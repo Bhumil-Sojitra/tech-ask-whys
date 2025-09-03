@@ -5,9 +5,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Upload } from 'lucide-react';
+import AvatarUploadCrop from '@/components/AvatarUploadCrop';
 
 interface Profile {
   id: string;
@@ -78,27 +77,11 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onProfileUpdate }: Edi
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col items-center space-y-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={formData.avatar_url} alt={formData.username} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                {formData.username.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="w-full space-y-2">
-              <Label htmlFor="avatar_url">Avatar URL</Label>
-              <Input
-                id="avatar_url"
-                value={formData.avatar_url}
-                onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                placeholder="https://example.com/avatar.jpg"
-              />
-              <p className="text-xs text-muted-foreground">
-                Enter a URL to your profile picture
-              </p>
-            </div>
-          </div>
+          <AvatarUploadCrop
+            currentAvatar={formData.avatar_url}
+            username={formData.username}
+            onAvatarChange={(avatarUrl) => setFormData({ ...formData, avatar_url: avatarUrl })}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>

@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowUp, ArrowDown, MessageCircle, Eye, CheckCircle, Plus, Trophy } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, Eye, CheckCircle, Plus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import TopContributors from '@/components/TopContributors';
 
 interface Question {
   id: string;
@@ -138,36 +139,7 @@ const Index = () => {
           {/* Sidebar */}
           <div className="lg:w-80 space-y-4">
             {/* Top Contributors */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Trophy className="h-5 w-5 text-reputation" />
-                  <span>Top Contributors</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-3">
-                  {[1, 2, 3].map((rank) => (
-                    <div key={rank} className="flex items-center space-x-3">
-                      <div className="flex-shrink-0">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
-                          #{rank}
-                        </div>
-                      </div>
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-muted text-xs">
-                          U{rank}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">User {rank}</p>
-                        <p className="text-xs text-reputation">{1000 - rank * 100} reputation</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <TopContributors />
 
             {/* Stats Card */}
             <Card>
