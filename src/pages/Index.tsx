@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowUp, ArrowDown, MessageCircle, Eye, CheckCircle, Plus } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, Eye, CheckCircle, Plus, Trophy } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Question {
@@ -113,23 +113,73 @@ const Index = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">All Questions</h1>
-          <p className="text-muted-foreground">
-            {questions.length} questions
-          </p>
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row gap-8 mb-8">
+          {/* Main content */}
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Top Questions</h1>
+                <p className="text-muted-foreground">
+                  {questions.length} questions
+                </p>
+              </div>
+              {user && (
+                <Button asChild>
+                  <Link to="/ask">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Ask Question
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="lg:w-80 space-y-4">
+            {/* Top Contributors */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Trophy className="h-5 w-5 text-reputation" />
+                  <span>Top Contributors</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-3">
+                  {[1, 2, 3].map((rank) => (
+                    <div key={rank} className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
+                          #{rank}
+                        </div>
+                      </div>
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-muted text-xs">
+                          U{rank}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">User {rank}</p>
+                        <p className="text-xs text-reputation">{1000 - rank * 100} reputation</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Stats Card */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center space-y-2">
+                  <div className="text-2xl font-bold text-primary">{questions.length}</div>
+                  <div className="text-sm text-muted-foreground">Questions Asked</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-        {user && (
-          <Button asChild>
-            <Link to="/ask">
-              <Plus className="h-4 w-4 mr-2" />
-              Ask Question
-            </Link>
-          </Button>
-        )}
-      </div>
 
       {/* Questions List */}
       <div className="space-y-4">

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MessageSquare, Search, Plus, User, LogOut, Settings } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
@@ -40,6 +41,7 @@ const Navbar = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {user ? (
               <>
                 <Button asChild>
