@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Monitor, Moon, Sun, User, Bell, Shield, Trash2 } from 'lucide-react';
+import SettingsActions from '@/components/SettingsActions';
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -17,6 +19,93 @@ const Settings = () => {
   
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
+  const [profileVisibility, setProfileVisibility] = useState<'public' | 'private'>('public');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserPreferences();
+    }
+  }, [user]);
+
+  const fetchUserPreferences = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user preferences:', error);
+        return;
+      }
+
+      if (data) {
+        setEmailNotifications(data.email_notifications);
+        setPushNotifications(data.push_notifications);
+        setProfileVisibility(data.profile_visibility as 'public' | 'private');
+      } else {
+        // Create default preferences if none exist
+        const { error: insertError } = await supabase
+          .from('user_preferences')
+          .insert({
+            user_id: user.id,
+            email_notifications: true,
+            push_notifications: false,
+            profile_visibility: 'public'
+          });
+
+        if (insertError) {
+          console.error('Error creating user preferences:', insertError);
+        }
+      }
+    } catch (error) {
+      console.error('Error in fetchUserPreferences:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updatePreference = async (key: string, value: any) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          [key]: value
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Settings Updated",
+        description: "Your preferences have been saved.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update preferences.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEmailNotificationChange = async (checked: boolean) => {
+    setEmailNotifications(checked);
+    await updatePreference('email_notifications', checked);
+  };
+
+  const handlePushNotificationChange = async (checked: boolean) => {
+    setPushNotifications(checked);
+    await updatePreference('push_notifications', checked);
+  };
 
   const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
     setTheme(newTheme);
@@ -133,7 +222,8 @@ const Settings = () => {
               </div>
               <Switch
                 checked={emailNotifications}
-                onCheckedChange={setEmailNotifications}
+                onCheckedChange={handleEmailNotificationChange}
+                disabled={loading}
               />
             </div>
             
@@ -146,7 +236,8 @@ const Settings = () => {
               </div>
               <Switch
                 checked={pushNotifications}
-                onCheckedChange={setPushNotifications}
+                onCheckedChange={handlePushNotificationChange}
+                disabled={loading}
               />
             </div>
           </CardContent>
@@ -164,25 +255,10 @@ const Settings = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 border border-border rounded-lg">
-              <h4 className="font-medium mb-2">Profile Visibility</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Your profile is currently public and can be viewed by all users.
-              </p>
-              <Button variant="outline" size="sm">
-                Manage Privacy
-              </Button>
-            </div>
-            
-            <div className="p-4 border border-border rounded-lg">
-              <h4 className="font-medium mb-2">Data Export</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Download a copy of all your data from TechWhys.
-              </p>
-              <Button variant="outline" size="sm">
-                Request Data Export
-              </Button>
-            </div>
+            <SettingsActions 
+              profileVisibility={profileVisibility}
+              onVisibilityChange={setProfileVisibility}
+            />
           </CardContent>
         </Card>
 
@@ -198,15 +274,7 @@ const Settings = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="p-4 border border-destructive/50 rounded-lg">
-              <h4 className="font-medium mb-2">Delete Account</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Permanently delete your account and all associated data. This action cannot be undone.
-              </p>
-              <Button variant="destructive" size="sm">
-                Delete Account
-              </Button>
-            </div>
+            {/* Moved delete functionality to SettingsActions component */}
           </CardContent>
         </Card>
       </div>
