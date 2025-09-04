@@ -3,7 +3,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { MessageCircle, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -99,17 +98,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId })
     setSubmitting(true);
 
     try {
-      // First get the user's profile to use user_id correctly  
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile) {
-        throw new Error('User profile not found');
-      }
-
       const commentData = {
         content: newComment.trim(),
         author_id: user.id,
@@ -130,7 +118,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId })
         description: "Your comment has been posted.",
       });
 
-      // Refresh comments
       fetchComments();
     } catch (error: any) {
       toast({
@@ -154,7 +141,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ targetType, targetId })
       const { error } = await supabase
         .from('comments')
         .delete()
-        .eq('id', commentId);
+        .eq('id', commentId)
+        .eq('author_id', user.id);
 
       if (error) throw error;
 
