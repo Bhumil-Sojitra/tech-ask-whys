@@ -8,7 +8,7 @@ import { CheckCircle, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import VoteButtons from './VoteButtons';
 import CommentSection from './CommentSection';
-import MarkdownEditor from './MarkdownEditor';
+import MarkdownRenderer from './MarkdownRenderer';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -95,12 +95,7 @@ const AnswerCard = ({ answer, questionAuthorId, isAccepted, onUpdate }: AnswerCa
                   )}
                   
                   <div className="prose prose-sm max-w-none mb-4">
-                    <MarkdownEditor
-                      value={answer.content}
-                      onChange={() => {}} // Read-only
-                      preview="preview"
-                      height={150}
-                    />
+                    <MarkdownRenderer content={answer.content} />
                   </div>
                 </div>
               </div>

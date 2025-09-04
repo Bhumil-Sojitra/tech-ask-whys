@@ -14,6 +14,7 @@ import VoteButtons from '@/components/VoteButtons';
 import AnswerCard from '@/components/AnswerCard';
 import CommentSection from '@/components/CommentSection';
 import MarkdownEditor from '@/components/MarkdownEditor';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 
 interface QuestionData {
   id: string;
@@ -324,12 +325,7 @@ const QuestionDetail = () => {
                   </div>
                   
                   <div className="prose prose-sm max-w-none mb-4">
-                    <MarkdownEditor
-                      value={question.description}
-                      onChange={() => {}} // Read-only
-                      preview="preview"
-                      height={200}
-                    />
+                    <MarkdownRenderer content={question.description} />
                   </div>
 
                   {/* Tags */}
