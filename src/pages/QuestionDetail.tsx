@@ -324,7 +324,7 @@ const QuestionDetail = () => {
                     </div>
                   </div>
                   
-                  <div className="prose prose-sm max-w-none mb-4">
+                  <div className="mb-4">
                     <MarkdownRenderer content={question.description} />
                   </div>
 
