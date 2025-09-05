@@ -95,11 +95,20 @@ const VoteButtons = ({ targetType, targetId, votes, onVoteChange, authorId }: Vo
         description: `You ${isUpvote ? 'upvoted' : 'downvoted'} this ${targetType}.`,
       });
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to record vote.",
-        variant: "destructive",
-      });
+      // Handle specific error for self-voting
+      if (error.message?.includes('cannot vote on your own')) {
+        toast({
+          title: "Cannot Vote on Own Content",
+          description: "You cannot vote on your own questions or answers.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to record vote.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
