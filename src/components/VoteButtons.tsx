@@ -10,9 +10,10 @@ interface VoteButtonsProps {
   targetId: string;
   votes: { upvotes: number; downvotes: number };
   onVoteChange: () => void;
+  authorId: string;
 }
 
-const VoteButtons = ({ targetType, targetId, votes, onVoteChange }: VoteButtonsProps) => {
+const VoteButtons = ({ targetType, targetId, votes, onVoteChange, authorId }: VoteButtonsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [userVote, setUserVote] = useState<boolean | null>(null);
@@ -135,34 +136,53 @@ const VoteButtons = ({ targetType, targetId, votes, onVoteChange }: VoteButtonsP
   };
 
   const score = votes.upvotes - votes.downvotes;
+  const isOwnContent = user?.id === authorId;
 
   return (
     <div className="flex flex-col items-center space-y-2 min-w-[60px]">
-      <Button
-        variant={userVote === true ? "default" : "outline"}
-        size="icon"
-        onClick={() => handleVote(true)}
-        disabled={loading}
-        className={userVote === true ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}
-      >
-        <ArrowUp className="h-4 w-4" />
-      </Button>
-      
-      <div className="text-center">
-        <div className={`text-lg font-bold ${score > 0 ? 'text-success' : score < 0 ? 'text-destructive' : ''}`}>
-          {score}
+      {!isOwnContent ? (
+        <>
+          <Button
+            variant={userVote === true ? "default" : "outline"}
+            size="icon"
+            onClick={() => handleVote(true)}
+            disabled={loading}
+            className={userVote === true ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+          
+          <div className="text-center">
+            <div className={`text-lg font-bold ${score > 0 ? 'text-success' : score < 0 ? 'text-destructive' : ''}`}>
+              {score}
+            </div>
+          </div>
+          
+          <Button
+            variant={userVote === false ? "default" : "outline"}
+            size="icon"
+            onClick={() => handleVote(false)}
+            disabled={loading}
+            className={userVote === false ? "bg-destructive text-destructive-foreground" : "hover:bg-destructive/10"}
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        </>
+      ) : (
+        <div className="flex flex-col items-center space-y-2">
+          <div className="h-10 w-10 flex items-center justify-center">
+            <ArrowUp className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="text-center">
+            <div className={`text-lg font-bold ${score > 0 ? 'text-success' : score < 0 ? 'text-destructive' : ''}`}>
+              {score}
+            </div>
+          </div>
+          <div className="h-10 w-10 flex items-center justify-center">
+            <ArrowDown className="h-4 w-4 text-muted-foreground" />
+          </div>
         </div>
-      </div>
-      
-      <Button
-        variant={userVote === false ? "default" : "outline"}
-        size="icon"
-        onClick={() => handleVote(false)}
-        disabled={loading}
-        className={userVote === false ? "bg-destructive text-destructive-foreground" : "hover:bg-destructive/10"}
-      >
-        <ArrowDown className="h-4 w-4" />
-      </Button>
+      )}
     </div>
   );
 };

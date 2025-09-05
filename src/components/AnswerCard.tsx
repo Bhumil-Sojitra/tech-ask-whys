@@ -79,6 +79,7 @@ const AnswerCard = ({ answer, questionAuthorId, isAccepted, onUpdate }: AnswerCa
               targetId={answer.id}
               votes={answer.votes}
               onVoteChange={onUpdate}
+              authorId={answer.author_id}
             />
 
             {/* Answer Content */}

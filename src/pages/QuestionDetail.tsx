@@ -325,6 +325,7 @@ const QuestionDetail = () => {
                 targetId={question.id}
                 votes={question.votes}
                 onVoteChange={() => fetchQuestionAndAnswers()}
+                authorId={question.author_id}
               />
 
               {/* Question Content */}
