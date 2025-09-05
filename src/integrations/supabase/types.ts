@@ -328,6 +328,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_views: {
+        Row: {
+          created_at: string
+          id: string
+          question_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           answer_id: string | null

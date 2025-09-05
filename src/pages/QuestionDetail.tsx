@@ -163,17 +163,37 @@ const QuestionDetail = () => {
 
   const incrementViewCount = async () => {
     try {
-      const { data: currentQuestion } = await supabase
-        .from('questions')
-        .select('views')
-        .eq('id', id)
-        .single();
+      // Check if user has already viewed this question
+      const { data: existingView } = await supabase
+        .from('user_views')
+        .select('id')
+        .eq('question_id', id)
+        .eq('user_id', user?.id || null)
+        .maybeSingle();
 
-      if (currentQuestion) {
+      // Only increment if this is a new view
+      if (!existingView) {
+        // Insert view record (allows null user_id for anonymous users)
         await supabase
+          .from('user_views')
+          .insert({
+            user_id: user?.id || null,
+            question_id: id
+          });
+
+        // Increment the view count
+        const { data: currentQuestion } = await supabase
           .from('questions')
-          .update({ views: currentQuestion.views + 1 })
-          .eq('id', id);
+          .select('views')
+          .eq('id', id)
+          .single();
+
+        if (currentQuestion) {
+          await supabase
+            .from('questions')
+            .update({ views: currentQuestion.views + 1 })
+            .eq('id', id);
+        }
       }
     } catch (error) {
       console.error('Failed to increment view count:', error);
